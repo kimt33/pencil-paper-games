@@ -1,11 +1,13 @@
 """Test tiktactoe module."""
 import pytest
+import base
 import tictactoe
 
 
 def test_init():
     """Test tictactoe.__init__."""
     game = tictactoe.TicTacToeGame()
+    assert game.occ_positions == [set([]), set([])]
     assert game.player1_positions == set([])
     assert game.player2_positions == set([])
     assert game.avail_positions == set(
@@ -31,7 +33,7 @@ def test_make_move():
     assert game.player1_positions == set([(0, 0), (1, 0)])
     assert game.next_player == 1
 
-    with pytest.raises(tictactoe.GameError):
+    with pytest.raises(base.GameError):
         game.make_move((1, 0))
     assert game.player2_positions == set([(0, 1)])
     game.make_move((1, 1))
@@ -42,7 +44,7 @@ def test_make_move():
     assert game.player1_positions == set([(0, 0), (1, 0), (2, 0)])
     assert game.next_player == 1
 
-    with pytest.raises(tictactoe.GameError):
+    with pytest.raises(base.GameError):
         game.make_move((2, 1))
     assert game.status == 2
 
@@ -73,7 +75,7 @@ def test_make_move():
     assert game.player2_positions == set([(0, 1), (1, 1), (2, 1)])
     assert game.next_player == 0
 
-    with pytest.raises(tictactoe.GameError):
+    with pytest.raises(base.GameError):
         game.make_move((2, 2))
     assert game.status == 3
 
@@ -87,7 +89,7 @@ def test_update_status():
     assert game.status == 1
 
     game = tictactoe.TicTacToeGame()
-    game.player1_positions = set([(0, 0), (1, 0), (2, 0)])
+    game.occ_positions[0] = set([(0, 0), (1, 0), (2, 0)])
     assert game.status == 0
     # NOTE: updating status with the wrong player selected does not change status
     game.update_status(1)

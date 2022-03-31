@@ -1,13 +1,9 @@
 """Module for running tic tac toe games."""
-
-
-class GameError(Exception):
-    """Error arising from game of tic tac toe."""
-    pass
+import base
 
 
 # TODO: undo? log?
-class TicTacToeGame:
+class TicTacToeGame(base.SinglePiecePlacementGame):
     """Platform for playing tic tac toe game.
 
     Attributes
@@ -39,11 +35,17 @@ class TicTacToeGame:
     # NOTE: should the game stop condition be implemented here?
     def __init__(self):
         """Initialize game."""
-        self.player1_positions = set([])
-        self.player2_positions = set([])
-        self.avail_positions = {(i, j) for i in range(3) for j in range(3)}
-        self.next_player = 0
-        self.status = 0
+        super().__init__(num_players=2, board_dimension=(3, 3))
+
+    @property
+    def player1_positions(self):
+        """Return current occupied positions of player 1 (index 0)."""
+        return self.occ_positions[0]
+
+    @property
+    def player2_positions(self):
+        """Return current occupied positions of player 2 (index 1)."""
+        return self.occ_positions[1]
 
     def make_move(self, coords):
         """Make move for the current player.
@@ -65,26 +67,16 @@ class TicTacToeGame:
         """
         coords = tuple(coords)
         if self.status == 1:
-            raise GameError("Game is tied. There are no more moves available.")
+            raise base.GameError("Game is tied. There are no more moves available.")
         if self.status == 2:
-            raise GameError("Game is over. Player 1 won.")
+            raise base.GameError("Game is over. Player 1 won.")
         if self.status == 3:
-            raise GameError("Game is over. Player 2 won.")
-        if coords not in self.avail_positions:
-            raise GameError("Given position is already occupied.")
+            raise base.GameError("Game is over. Player 2 won.")
 
-        if self.next_player == 0:
-            self.player1_positions.add(coords)
-        else:
-            self.player2_positions.add(coords)
-        self.update_status(self.next_player)
-        self.avail_positions.remove(coords)
+        super().make_move(coords)
 
-        self.next_player = (self.next_player + 1) % 2
-
-    # FIXME: unreliable dependence on next_player
     def update_status(self, player_ind):
-        """Update game status from the
+        """Update game status.
 
         Parameters
         ----------
@@ -97,11 +89,7 @@ class TicTacToeGame:
             self.status = 1
             return
 
-        if player_ind == 0:
-            positions = self.player1_positions
-        else:
-            positions = self.player2_positions
-
+        positions = self.occ_positions[player_ind]
         # FIXME: a bit wordy
         if (
             all(coords in positions for coords in [(0, 0), (1, 1), (2, 2)]) or
