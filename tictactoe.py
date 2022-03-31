@@ -20,6 +20,12 @@ class TicTacToeGame:
     next_player : int
         Player that will move next.
         If `0` then player 1. If `1` then player 2.
+    status : int
+        Status of the game.
+        If `0`, then game is on going.
+        If `1`, then game is tied.
+        If `2`, then player 1 wins.
+        If `3`, then player 2 wins.
 
     Methods
     -------
@@ -35,11 +41,16 @@ class TicTacToeGame:
         self.player2_positions = set([])
         self.avail_positions = {(i, j) for i in range(3) for j in range(3)}
         self.next_player = 0
+        self.status = 0
 
     def make_move(self, coords):
         coords = tuple(coords)
-        if not self.avail_positions:
-            raise GameError("No more moves available.")
+        if self.status == 1:
+            raise GameError("Game is tied. There are no more moves available.")
+        if self.status == 2:
+            raise GameError("Game is over. Player 1 won.")
+        if self.status == 3:
+            raise GameError("Game is over. Player 2 won.")
         if coords not in self.avail_positions:
             raise GameError("Given position is already occupied.")
 
@@ -47,6 +58,39 @@ class TicTacToeGame:
             self.player1_positions.add(coords)
         else:
             self.player2_positions.add(coords)
+        self.update_status()
         self.avail_positions.remove(coords)
 
         self.next_player = (self.next_player + 1) % 2
+
+    # FIXME: unreliable dependence on next_player
+    def update_status(self):
+        """Update game status from the
+
+        Assumes that the current player has just made a move and the `next_player` flag has not been
+        updated yet.
+
+        """
+        if not self.avail_positions:
+            self.status = 1
+            return
+
+        if self.next_player == 0:
+            positions = self.player1_positions
+        else:
+            positions = self.player2_positions
+
+        # FIXME: a bit wordy
+        if (
+            all(coords in positions for coords in [(0, 0), (1, 1), (2, 2)]) or
+            all(coords in positions for coords in [(0, 2), (1, 1), (2, 0)]) or
+            all(coords in positions for coords in [(0, 0), (1, 0), (2, 0)]) or
+            all(coords in positions for coords in [(0, 1), (1, 1), (2, 1)]) or
+            all(coords in positions for coords in [(0, 2), (1, 2), (2, 2)]) or
+            all(coords in positions for coords in [(0, 0), (0, 1), (0, 2)]) or
+            all(coords in positions for coords in [(1, 0), (1, 1), (1, 2)]) or
+            all(coords in positions for coords in [(2, 0), (2, 1), (2, 2)])
+        ):
+            self.status = self.next_player + 2
+        # else:
+        #     self.status = 0

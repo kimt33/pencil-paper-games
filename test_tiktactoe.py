@@ -12,6 +12,7 @@ def test_init():
         [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
     )
     assert game.next_player == 0
+    assert game.status == 0
 
 
 def test_make_move():
@@ -41,8 +42,61 @@ def test_make_move():
     assert game.player1_positions == set([(0, 0), (1, 0), (2, 0)])
     assert game.next_player == 1
 
-    # NOTE: game continues even though player 1 won
+    with pytest.raises(tictactoe.GameError):
+        game.make_move((2, 1))
+    assert game.status == 2
+
+    # repeat game
+    game = tictactoe.TicTacToeGame()
+
+    game.make_move((0, 0))
+    assert game.player1_positions == set([(0, 0)])
+    assert game.next_player == 1
+
+    game.make_move((0, 1))
+    assert game.player2_positions == set([(0, 1)])
+    assert game.next_player == 0
+
+    game.make_move((1, 0))
+    assert game.player1_positions == set([(0, 0), (1, 0)])
+    assert game.next_player == 1
+
+    game.make_move((1, 1))
+    assert game.player2_positions == set([(0, 1), (1, 1)])
+    assert game.next_player == 0
+
+    game.make_move((2, 2))
+    assert game.player1_positions == set([(0, 0), (1, 0), (2, 2)])
+    assert game.next_player == 1
+
     game.make_move((2, 1))
     assert game.player2_positions == set([(0, 1), (1, 1), (2, 1)])
     assert game.next_player == 0
 
+    with pytest.raises(tictactoe.GameError):
+        game.make_move((2, 2))
+    assert game.status == 3
+
+
+def test_update_status():
+    """Test TicTacToeGame.update_status."""
+    game = tictactoe.TicTacToeGame()
+    game.avail_positions = set([])
+    assert game.status == 0
+    game.update_status()
+    assert game.status == 1
+
+    game = tictactoe.TicTacToeGame()
+    game.player1_positions = set([(0, 0), (1, 0), (2, 0)])
+    game.next_player = 0
+    assert game.status == 0
+    game.update_status()
+    assert game.status == 2
+
+    # NOTE: updating status with the wrong player selected does not change status
+    game = tictactoe.TicTacToeGame()
+    game.player1_positions = set([(0, 0), (1, 0), (2, 0)])
+    game.next_player = 1
+    assert game.status == 0
+    game.update_status()
+    assert game.status == 0
