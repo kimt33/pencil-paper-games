@@ -6,6 +6,7 @@ class GameError(Exception):
     pass
 
 
+# TODO: undo? log?
 class TicTacToeGame:
     """Platform for playing tic tac toe game.
 
@@ -37,6 +38,7 @@ class TicTacToeGame:
     """
     # NOTE: should the game stop condition be implemented here?
     def __init__(self):
+        """Initialize game."""
         self.player1_positions = set([])
         self.player2_positions = set([])
         self.avail_positions = {(i, j) for i in range(3) for j in range(3)}
@@ -44,6 +46,23 @@ class TicTacToeGame:
         self.status = 0
 
     def make_move(self, coords):
+        """Make move for the current player.
+
+        Parameters
+        ----------
+        coords : 2-tuple of int
+            Coordinate on the board.
+            0-indexed, where 0 corresponds to the bottom left corner (from player 1's perspective).
+
+        Raises
+        ------
+        GameError
+            If no more moves are available.
+            If player 1 won.
+            If player 2 won.
+            If given position is already occupied.
+
+        """
         coords = tuple(coords)
         if self.status == 1:
             raise GameError("Game is tied. There are no more moves available.")
