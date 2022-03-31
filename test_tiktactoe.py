@@ -83,20 +83,14 @@ def test_update_status():
     game = tictactoe.TicTacToeGame()
     game.avail_positions = set([])
     assert game.status == 0
-    game.update_status()
+    game.update_status(0)
     assert game.status == 1
 
     game = tictactoe.TicTacToeGame()
     game.player1_positions = set([(0, 0), (1, 0), (2, 0)])
-    game.next_player = 0
     assert game.status == 0
-    game.update_status()
-    assert game.status == 2
-
     # NOTE: updating status with the wrong player selected does not change status
-    game = tictactoe.TicTacToeGame()
-    game.player1_positions = set([(0, 0), (1, 0), (2, 0)])
-    game.next_player = 1
+    game.update_status(1)
     assert game.status == 0
-    game.update_status()
-    assert game.status == 0
+    game.update_status(0)
+    assert game.status == 2

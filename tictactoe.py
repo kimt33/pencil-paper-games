@@ -58,24 +58,27 @@ class TicTacToeGame:
             self.player1_positions.add(coords)
         else:
             self.player2_positions.add(coords)
-        self.update_status()
+        self.update_status(self.next_player)
         self.avail_positions.remove(coords)
 
         self.next_player = (self.next_player + 1) % 2
 
     # FIXME: unreliable dependence on next_player
-    def update_status(self):
+    def update_status(self, player_ind):
         """Update game status from the
 
-        Assumes that the current player has just made a move and the `next_player` flag has not been
-        updated yet.
+        Parameters
+        ----------
+        player_ind : int
+            Player whose moves will be assessed to check if the game has ended.
+            `0` is player 1. `1` is player 2.
 
         """
         if not self.avail_positions:
             self.status = 1
             return
 
-        if self.next_player == 0:
+        if player_ind == 0:
             positions = self.player1_positions
         else:
             positions = self.player2_positions
@@ -91,6 +94,6 @@ class TicTacToeGame:
             all(coords in positions for coords in [(1, 0), (1, 1), (1, 2)]) or
             all(coords in positions for coords in [(2, 0), (2, 1), (2, 2)])
         ):
-            self.status = self.next_player + 2
+            self.status = player_ind + 2
         # else:
         #     self.status = 0
